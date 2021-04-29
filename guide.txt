@@ -1,0 +1,5 @@
+make build
+make run &
+
+ps -ef | grep bin/bot    (get pid)
+kill -9 [pid]
