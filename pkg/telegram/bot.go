@@ -21,6 +21,7 @@ var menuEditor = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 var btnAdd = menuEditor.Text("Добавить вариант 🍜")
 var btnTest = menuEditor.Text("Посмотреть опрос 👀")
 var btnPost = menuEditor.Text("Отправить опрос ✅")
+var btnTitle = menuEditor.Text("Изменить заголовок 📝")
 var btnClear = menuEditor.Text("Отчистить все 🗑")
 
 type Bot struct {
@@ -184,7 +185,8 @@ func (b *Bot) initMenus() {
 
 	menuEditor.Reply(
 		menuEditor.Row(btnAdd, btnTest),
-		menuEditor.Row(btnClear, btnPost),
+		menuEditor.Row(btnClear, btnTitle),
+		menuEditor.Row(btnPost),
 	)
 }
 

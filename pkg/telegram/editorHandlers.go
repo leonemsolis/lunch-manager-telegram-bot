@@ -15,6 +15,17 @@ func (b *Bot) setEditorHandlers() {
 		})
 	})
 
+	b.Bot.Handle(&btnTitle, func(m *tb.Message) {
+		b.authorizedAction(m.Sender, func() {
+			b.Bot.Send(m.Sender, "Напиши новый заголовок 📝")
+			b.Bot.Handle(tb.OnText, func(m *tb.Message) {
+				b.currentMenu.title = m.Text
+				b.Bot.Send(m.Sender, "Принято!", menuEditor)
+				b.setDefaultEmptyTextHandler()
+			})
+		})
+	})
+
 	b.Bot.Handle(&btnTest, func(m *tb.Message) {
 		b.authorizedAction(m.Sender, func() {
 			poll := b.currentMenu.CreatePoll()
@@ -35,6 +46,11 @@ func (b *Bot) setEditorHandlers() {
 				return
 			}
 
+			if b.currentMenu.title == "" {
+				b.Bot.Send(m.Sender, "Добавьте заголовок опроса 😡", menuEditor)
+				return
+			}
+
 			poll := b.currentMenu.CreatePoll()
 			mess, err := poll.Send(b.Bot, b.chat, &tb.SendOptions{})
 
@@ -42,6 +58,8 @@ func (b *Bot) setEditorHandlers() {
 				b.Bot.Send(m.Sender, "Произошла какая-то ошибка 😅", menuAdmin)
 				return
 			}
+
+
 
 			b.currentPoolID = mess.Poll.ID
 

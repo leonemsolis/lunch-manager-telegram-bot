@@ -6,6 +6,7 @@ import (
 )
 
 type Menu struct {
+	title string
 	items []*MenuItem
 }
 
@@ -15,7 +16,7 @@ type MenuItem struct {
 }
 
 func CreateNewMenu() *Menu {
-	return &Menu{}
+	return &Menu{title:""}
 }
 
 func (m *Menu) AddNewElement(name string) {
@@ -55,9 +56,9 @@ func (m* Menu) GetResults() string {
 	if m == nil {
 		return "Меню пока что не создано"
 	}
-	result := ""
+	result := "🔴 "+m.title + "\n"
 	for _, mi := range m.items {
-		result += fmt.Sprintf("%s - %d\n", mi.name, mi.GetVotersCount())
+		result += fmt.Sprintf("🔵🔵 %s - %d\n", mi.name, mi.GetVotersCount())
 	}
 	return result
 }
@@ -66,7 +67,7 @@ func (m *Menu) CreatePoll() tb.Poll {
 	return tb.Poll{
 		ID:              "",
 		Type:            tb.PollRegular,
-		Question:        "Меню",
+		Question:        m.title,
 		Options:         m.createOptions(),
 		VoterCount:      0,
 		Closed:          false,
