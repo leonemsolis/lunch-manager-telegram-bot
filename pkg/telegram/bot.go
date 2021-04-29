@@ -1,17 +1,20 @@
 package telegram
 
 import (
+	"encoding/json"
 	tb "gopkg.in/tucnak/telebot.v2"
+	"io/ioutil"
 	"time"
 )
 
-var menuAuth = &tb.ReplyMarkup{ResizeReplyKeyboard: true, OneTimeKeyboard: true}
+var menuAuth = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
+var btnMenu = menuAuth.Text("Посмотреть меню 🍔")
 var btnAuth = menuAuth.Text("Войти 🔒")
 
 var menuAdmin = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 var btnNewMenu = menuAdmin.Text("Создать новое меню 🍲")
 var btnShowResults = menuAdmin.Text("Посмотреть результаты 👀")
-var btnTimer = menuAdmin.Text("Настройки уведомленияw ⏱")
+var btnTimer = menuAdmin.Text("Настройки уведомления ⏱")
 var btnLogout = menuAdmin.Text("Выйти 🚪")
 
 var menuEditor = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
@@ -37,10 +40,31 @@ type Bot struct {
 	currentMenu *Menu
 
 	message tb.Editable
+
+	availableMenus string
 }
 
 func NewBot(bot *tb.Bot, adminKey string) *Bot {
-	return &Bot{Bot: bot, adminKey: adminKey, checkHour: 9, checkMinute: 20}
+	return &Bot{Bot: bot, adminKey: adminKey, checkHour: 9, checkMinute: 20, availableMenus: ""}
+}
+
+func (b *Bot) UpdateAvailableMenus() {
+	result := "Все доступные меню 🍔🍕🍟"
+	file, _ := ioutil.ReadFile("menu.json")
+	var cafes []CafeMenus
+	_ = json.Unmarshal(file, &cafes)
+
+	for _, cafe := range cafes {
+		result += "\n\nМеню для "+cafe.Cafe+"\n"
+		for _, menu := range cafe.Menus {
+			result += "\n🔴 "+menu.Name
+			for _, item := range menu.Items {
+				result += "\n🔵🔵 "+item
+			}
+			result += "\n"
+		}
+	}
+	b.availableMenus = result
 }
 
 func (b *Bot) addNewVoter(voter string) {
@@ -79,11 +103,17 @@ func isIn(slice []string, val string) bool {
 
 func (b *Bot) timeChecker() {
 	notificationSent := false
+	notificationHours := b.checkHour - 12
+	if notificationHours < 0 {
+		notificationHours += 24
+	}
+	location, _ := time.LoadLocation("UTC")
+
 	for true {
-		location, _ := time.LoadLocation("UTC")
 		hour := time.Now().In(location).Add(time.Hour * 6).Hour()
 		minute := time.Now().In(location).Add(time.Hour * 6).Minute()
-		if hour == b.checkHour - 4 && !notificationSent {
+
+		if hour == notificationHours && !notificationSent {
 			notificationSent = true
 			b.sendNotification()
 		}
@@ -97,7 +127,7 @@ func (b *Bot) timeChecker() {
 
 func (b *Bot) sendNotification() {
 	if b.chat != nil {
-		b.Bot.Send(b.chat, "Кандидаты на голодовку: \n"+b.getNonVoted())
+		b.Bot.Send(b.chat, "😬 Кандидаты на голодовку: \n"+b.getNonVoted())
 	}
 }
 
@@ -124,7 +154,7 @@ func (b *Bot) getNonVoted() string {
 
 func (b *Bot) sendResults() {
 	if b.admin != nil {
-		b.Bot.Send(b.admin, "Время опроса вышло, вот результаты: \n"+b.currentMenu.GetResults())
+		b.Bot.Send(b.admin, "⏰ Время опроса вышло, вот результаты: \n"+b.currentMenu.GetResults())
 	}
 }
 
@@ -140,10 +170,12 @@ func (b *Bot) Init() {
 
 func (b *Bot) initMenus() {
 	menuAuth.Reply(
+		menuAuth.Row(btnMenu),
 		menuAuth.Row(btnAuth),
 	)
 
 	menuAdmin.Reply(
+		menuAuth.Row(btnMenu),
 		menuAdmin.Row(btnNewMenu),
 		menuAdmin.Row(btnShowResults),
 		menuAdmin.Row(btnTimer),

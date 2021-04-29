@@ -15,7 +15,7 @@ func (b *Bot) setAdminHandlers() {
 
 	b.Bot.Handle(&btnTimer, func(m *tb.Message) {
 		b.authorizedAction(m.Sender, func() {
-			b.Bot.Send(m.Sender, "Я буду присылать тебе результаты в "+strconv.Itoa(b.checkHour)+":"+strconv.Itoa(b.checkMinute)+"\nПредупреждать не проголосовавших буду за 4 часа до результатов\nДля выхода напиши \"отмена\"\nДля настройки времени напиши час и минуту в формате \"01:23\"")
+			b.Bot.Send(m.Sender, "Я буду присылать тебе результаты в "+strconv.Itoa(b.checkHour)+":"+strconv.Itoa(b.checkMinute)+"\nПредупреждать не проголосовавших буду за 12 часов до результатов\nДля выхода напиши \"отмена\"\nДля настройки времени напиши час и минуту в формате \"01:23\"")
 			b.Bot.Handle(tb.OnText, func(m *tb.Message) {
 				if m.Text == "отмена" {
 					b.Bot.Send(m.Sender, "Выход в главное меню", menuAdmin)
@@ -32,7 +32,7 @@ func (b *Bot) setAdminHandlers() {
 						if err == nil && hour >= 0 && hour <= 24 && minute >= 0 && minute <= 60 {
 							b.checkHour = hour
 							b.checkMinute = minute
-							b.Bot.Send(m.Sender, "Принято! Предупреждение будет отсылаться в "+m.Text, menuAdmin)
+							b.Bot.Send(m.Sender, "Принято! Результаты будут отсылаться в "+m.Text, menuAdmin)
 							b.setDefaultEmptyTextHandler()
 							return
 						}

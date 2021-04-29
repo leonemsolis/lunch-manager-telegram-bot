@@ -2,13 +2,16 @@ package telegram
 
 import (
 	tb "gopkg.in/tucnak/telebot.v2"
-	"log"
 )
 
 func (b *Bot) setAuthHandlers() {
 	b.Bot.Handle("/start", func(m *tb.Message) {
 		//b.Bot.Send(m.Sender, "Hello there! Send me your password using '/auth password'")
 		b.Bot.Send(m.Sender, "Привет!", menuAuth)
+	})
+
+	b.Bot.Handle(&btnMenu, func(m *tb.Message) {
+		b.Bot.Send(m.Sender, b.availableMenus)
 	})
 
 	b.Bot.Handle(&btnAuth, func(m *tb.Message) {
@@ -26,13 +29,6 @@ func (b *Bot) setAuthHandlers() {
 			}
 			b.setDefaultEmptyTextHandler()
 		})
-	})
-
-	b.Bot.Handle(tb.OnCallback, func(callback *tb.Callback) {
-		log.Println(callback.IsInline())
-		log.Println(callback.Message)
-		log.Println(callback.Sender)
-		b.Bot.Edit(b.message, "WOW")
 	})
 
 	//b.Bot.Handle(&btnCheck, func(m *tb.Message) {

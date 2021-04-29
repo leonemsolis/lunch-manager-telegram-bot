@@ -48,6 +48,9 @@ func (b *Bot) setEditorHandlers() {
 			// Clear voted_today slice
 			b.voted_today = nil
 			go b.timeChecker()
+
+			b.UpdateAvailableMenus()
+
 			b.Bot.Send(m.Sender, "Отлично, опрос отправлен 👍", menuAdmin)
 		})
 	})

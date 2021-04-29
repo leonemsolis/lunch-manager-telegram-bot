@@ -26,7 +26,7 @@ func main() {
 	}
 
 	b := telegram.NewBot(bot, lines[1])
-
+	b.UpdateAvailableMenus()
 
 	b.Init()
 	b.Bot.Start()
