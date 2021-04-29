@@ -6,6 +6,6 @@ make run &
 ps -ef | grep bin/bot    (get pid)
 
 root        2925    2891  0 08:41 pts/0    00:00:00 ./.bin/bot
-2891 - is pid
+2925 - is pid
 
 kill -9 [pid]
