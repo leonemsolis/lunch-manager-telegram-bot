@@ -7,7 +7,7 @@ import (
 func (b *Bot) setHandlers() {
 	b.Bot.Handle(tb.OnAddedToGroup, func(m *tb.Message) {
 		if b.chat == nil {
-			b.Bot.Send(m.Chat, "Привет всем! Я Обед Менеджер v2.0")
+			b.Bot.Send(m.Chat, "Привет всем! Я Обед Менеджер v2.1")
 			b.chat = m.Chat
 		} else {
 			b.Bot.Send(m.Chat, "Извините, у меня уже есть группа 😰")

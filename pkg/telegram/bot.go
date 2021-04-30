@@ -39,6 +39,7 @@ type Bot struct {
 	currentPoolID string
 
 	currentMenu *Menu
+	draftMenu *Menu
 
 	message tb.Editable
 
@@ -110,6 +111,9 @@ func (b *Bot) timeChecker() {
 	}
 	location, _ := time.LoadLocation("UTC")
 
+	resultHour := b.checkHour
+	resultMinute := b.checkMinute
+
 	for true {
 		hour := time.Now().In(location).Add(time.Hour * 6).Hour()
 		minute := time.Now().In(location).Add(time.Hour * 6).Minute()
@@ -118,7 +122,7 @@ func (b *Bot) timeChecker() {
 			notificationSent = true
 			b.sendNotification()
 		}
-		if hour == b.checkHour && minute == b.checkMinute {
+		if hour == resultHour && minute == resultMinute {
 			b.sendResults()
 			return
 		}
@@ -127,8 +131,9 @@ func (b *Bot) timeChecker() {
 }
 
 func (b *Bot) sendNotification() {
-	if b.chat != nil {
-		b.Bot.Send(b.chat, "😬 Кандидаты на голодовку: \n"+b.getNonVoted())
+	nonVoted := b.getNonVoted()
+	if b.chat != nil && nonVoted != "" {
+		b.Bot.Send(b.chat, "😬 Кандидаты на голодовку: \n"+nonVoted)
 	}
 }
 

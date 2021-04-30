@@ -8,7 +8,7 @@ import (
 func (b *Bot) setAdminHandlers() {
 	b.Bot.Handle(&btnNewMenu, func(m *tb.Message) {
 		b.authorizedAction(m.Sender, func() {
-			b.currentMenu = CreateNewMenu()
+			b.draftMenu = CreateNewMenu()
 			b.Bot.Send(m.Sender, "Создайте новое меню", menuEditor)
 		})
 	})
@@ -32,7 +32,7 @@ func (b *Bot) setAdminHandlers() {
 						if err == nil && hour >= 0 && hour <= 24 && minute >= 0 && minute <= 60 {
 							b.checkHour = hour
 							b.checkMinute = minute
-							b.Bot.Send(m.Sender, "Принято! Результаты будут отсылаться в "+m.Text, menuAdmin)
+							b.Bot.Send(m.Sender, "Принято! Результаты последующих опросов будут отсылаться в "+m.Text, menuAdmin)
 							b.setDefaultEmptyTextHandler()
 							return
 						}

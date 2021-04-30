@@ -16,7 +16,7 @@ type MenuItem struct {
 }
 
 func CreateNewMenu() *Menu {
-	return &Menu{title:""}
+	return &Menu{title:"empty"}
 }
 
 func (m *Menu) AddNewElement(name string) {
