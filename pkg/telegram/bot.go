@@ -2,9 +2,10 @@ package telegram
 
 import (
 	"encoding/json"
-	tb "gopkg.in/tucnak/telebot.v2"
 	"io/ioutil"
 	"time"
+
+	tb "gopkg.in/tucnak/telebot.v2"
 )
 
 var menuAuth = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
@@ -14,6 +15,8 @@ var btnAuth = menuAuth.Text("Войти 🔒")
 var menuAdmin = &tb.ReplyMarkup{ResizeReplyKeyboard: true}
 var btnNewMenu = menuAdmin.Text("Создать новое меню 🍲")
 var btnShowResults = menuAdmin.Text("Посмотреть результаты 👀")
+var btnRemoveVoter = menuAdmin.Text("Удалить пользователя из напоминаний 🗑")
+var btnListVoters = menuAdmin.Text("Посмотреть список всех пользователей 🙂🙂🙂")
 var btnTimer = menuAdmin.Text("Настройки уведомления ⏱")
 var btnLogout = menuAdmin.Text("Выйти 🚪")
 
@@ -31,15 +34,15 @@ type Bot struct {
 	chat     *tb.Chat
 
 	total_voters []string
-	voted_today []string
+	voted_today  []string
 
-	checkHour int
+	checkHour   int
 	checkMinute int
 
 	currentPoolID string
 
 	currentMenu *Menu
-	draftMenu *Menu
+	draftMenu   *Menu
 
 	message tb.Editable
 
@@ -57,11 +60,11 @@ func (b *Bot) UpdateAvailableMenus() {
 	_ = json.Unmarshal(file, &cafes)
 
 	for _, cafe := range cafes {
-		result += "\n\nМеню для "+cafe.Cafe+"\n"
+		result += "\n\nМеню для " + cafe.Cafe + "\n"
 		for _, menu := range cafe.Menus {
-			result += "\n🔴 "+menu.Name
+			result += "\n🔴 " + menu.Name
 			for _, item := range menu.Items {
-				result += "\n🔵🔵 "+item
+				result += "\n🔵🔵 " + item
 			}
 			result += "\n"
 		}
@@ -73,6 +76,29 @@ func (b *Bot) addNewVoter(voter string) {
 	if !isIn(b.total_voters, voter) {
 		b.total_voters = append(b.total_voters, voter)
 	}
+}
+
+func (b *Bot) getAllVoters() string {
+	result := ""
+	for _, element := range b.total_voters {
+		result += element + "\n"
+	}
+	return result
+}
+
+func (b *Bot) removeVoter(user string) bool {
+	removeIndex := -1
+	for index, element := range b.total_voters {
+		if element == user {
+			removeIndex = index
+			break
+		}
+	}
+	if removeIndex == -1 {
+		return false
+	}
+	b.total_voters = remove(b.total_voters, removeIndex)
+	return true
 }
 
 func (b *Bot) markVoter(voter string, voted bool) {
@@ -153,7 +179,7 @@ func (b *Bot) getNonVoted() string {
 	}
 	result := ""
 	for _, n := range nonVoted {
-		result += "@"+n+" "
+		result += "@" + n + " "
 	}
 	return result
 }
@@ -173,7 +199,6 @@ func (b *Bot) Init() {
 	b.setEditorHandlers()
 }
 
-
 func (b *Bot) initMenus() {
 	menuAuth.Reply(
 		menuAuth.Row(btnMenu),
@@ -184,6 +209,8 @@ func (b *Bot) initMenus() {
 		menuAuth.Row(btnMenu),
 		menuAdmin.Row(btnNewMenu),
 		menuAdmin.Row(btnShowResults),
+		menuAdmin.Row(btnRemoveVoter),
+		menuAdmin.Row(btnListVoters),
 		menuAdmin.Row(btnTimer),
 		menuAdmin.Row(btnLogout),
 	)

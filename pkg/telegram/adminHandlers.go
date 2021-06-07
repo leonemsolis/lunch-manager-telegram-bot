@@ -1,8 +1,9 @@
 package telegram
 
 import (
-	tb "gopkg.in/tucnak/telebot.v2"
 	"strconv"
+
+	tb "gopkg.in/tucnak/telebot.v2"
 )
 
 func (b *Bot) setAdminHandlers() {
@@ -47,6 +48,28 @@ func (b *Bot) setAdminHandlers() {
 	b.Bot.Handle(&btnShowResults, func(m *tb.Message) {
 		b.authorizedAction(m.Sender, func() {
 			b.Bot.Send(m.Sender, b.currentMenu.GetResults())
+		})
+	})
+
+	b.Bot.Handle(&btnRemoveVoter, func(m *tb.Message) {
+		b.authorizedAction(m.Sender, func() {
+			b.Bot.Send(m.Sender, "Напишите никнейм голосующего, которого вы хотите удалить из уведомлений (формат: @someuser)")
+			b.Bot.Handle(tb.OnText, func(m *tb.Message) {
+				ok := b.removeVoter(m.Text)
+				if ok {
+					b.Bot.Send(m.Sender, "Пользователь удален из рассылки уведомлений", menuAdmin)
+				} else {
+					b.Bot.Send(m.Sender, "Ошибка, пользователь не найден", menuAdmin)
+				}
+
+				b.setDefaultEmptyTextHandler()
+			})
+		})
+	})
+
+	b.Bot.Handle(&btnListVoters, func(m *tb.Message) {
+		b.authorizedAction(m.Sender, func() {
+			b.Bot.Send(m.Sender, b.getAllVoters())
 		})
 	})
 
